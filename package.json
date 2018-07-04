@@ -14,10 +14,12 @@
     "fs": "0.0.1-security",
     "hoek": "^5.0.3",
     "http-errors": "~1.6.2",
+    "mime": "^2.3.1",
     "morgan": "~1.9.0",
     "node-fetch": "^2.1.2",
     "request": "^2.87.0",
     "ssl-root-cas": "^1.2.5",
+    "tunnel-agent": "^0.6.0",
     "unirest": "^0.5.1"
   }
 }

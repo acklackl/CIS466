@@ -58,7 +58,7 @@ router.get('/cart', function(req, res, next) {
       else {res.render('cart', {title: title, data: body[0], alert: false, alertContent: ''});}
     });
   }
-  else {/*pop a 'not logged in' modal*/}
+  else {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to view your cart.'});}
 });
 
 /* GET Register Page */
