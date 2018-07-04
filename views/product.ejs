@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<%- include head %>
+
+<body>
+  <%- include nav %>
+  <section>
+    <div class="container-fluid">
+      <div class="row">
+
+        <% for(var i = 0; i < data.length; i++) { %>
+        <div class="col-3 product">
+          <ul class="product">
+            <li><img class="prdImg img-fluid" src=<%- data[i].productImage %> alt="Product"></li>
+            <li>
+              <h6><%= data[i].productName %></h6>
+            </li>
+            <li><%= "$" + data[i].price %></li>
+            <li>
+              <button type="button" class="btn add" data-toggle="modal" data-target="#productForm" data-product-id=<%- data[i].productID %>>
+                Add to Cart
+              </button>
+            </li>
+          </ul>
+        </div>
+        <% } %>
+
+      </div>
+    </div>
+
+    
+    <section>
+      
+      <!-- Modal -->
+      <div class="modal fade" id="productForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Add to Cart</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <form method="POST" action="/product">
+                    <input type="hidden" name="productID">
+                    <h6>Quantity</h6>
+                    <select name="quantity" class="form-control">
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                    </select>
+                  </div>
+                </div>
+                <br/>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add to Cart</button>
+              </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      
+    </section>
+  
+
+  </section>
+  </div>
+  <%- include popups %>
+  <%- include scripts %>
+  <script src="/javascripts/modal.js"></script>
+
+</body>
+
+</html>

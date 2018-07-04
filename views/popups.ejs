@@ -1,0 +1,10 @@
+<script src="/javascripts/popupS.min.js"></script>
+ 
+<% if (alert) { %>
+<script>
+    var alertContent = <%- JSON.stringify(alertContent) %>;
+    popupS.modal({
+        content: alertContent
+    });
+</script> 
+<% } %>

@@ -1,0 +1,111 @@
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+html,
+body,
+{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  display: block;
+  box-sizing: border-box;
+}
+
+* {
+  /*  font-family:"Comic Sans MS", cursive, sans-serif*/
+  font-family: lato, sans-serif;
+}
+
+#status{
+  float: right;
+}
+
+main {
+  padding: 10% 0 10% 0;
+}
+
+.prdImg{
+  width: 300px;
+  height: 100px;
+}
+
+.product{
+  vertical-align: bottom;
+}
+
+header {
+  width: 100%;
+  text-align: center;
+  background-color: #6D2E46;
+  padding-bottom: 3%;
+  color: white;
+}
+
+nav {
+  width: 100%;
+  background-color: #A26769;
+  margin: 0 auto 0 auto;
+}
+
+.nav {
+  padding-left: 28%;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer {
+  width: 100%;
+  text-align: center;
+  background-color: #6D2E46;
+}
+
+body {
+  /*background: radial-gradient(red, blue, green);
+}*/
+  text-align: center;
+}
+
+form{
+  text-align: left;
+}
+
+.btn {
+  background-color: #A26769;
+  border-color: #A26769;
+}
+
+.product {
+  width: 50%;
+  padding: 1%
+}
+
+.nav-item {
+  color: white;
+}
+
+.silver {
+  background-color: #CEBEBE;
+}
+
+.almond {
+  background-color: #ECE2D0;
+}
+
+.vanilla {
+  background-color: #D5B9B2;
+}
+
+.rose {
+  background-color: #A26769;
+}
+
+.wine {
+  background-color: #6D2E46;
+}
