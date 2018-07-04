@@ -19,7 +19,7 @@
       <tr>
         <% counter++ %>
         <th scope="row"><%= counter %></th>
-        <td><img class="img-fluid" src=<%- data.products[product][3] %> alt="Product"></td>
+        <td><img class="cartPrdImg img-fluid" src=<%- data.products[product][3] %> alt="Product"></td>
         <td><%= data.products[product][0] %></td>
         <td><%= data.products[product][2] %></td>
         <td><%= data.products[product][1] %></td>
@@ -31,6 +31,7 @@
 </div>
 <div>
   <span>Total: <%= data.subTotal %></span>
+  <br>
   <button href ="order.html" type="button" class="btn btn-primary">Checkout</button>
 </div>
 <%- include popups %>

@@ -101,6 +101,11 @@ router.get('/logout', function(req, res, next) {
   }
 });
 
+/*GET order page*/ 
+router.get('/order', function(req, res, next) {
+  res.render('order', {title: title, status: status, alert: false});
+})
+
 /* POST product orderline */
 router.post('/product', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -161,6 +166,7 @@ router.post('/login', function(req, res, next) {
           res.cookie('token', response.body, {maxAge: 9000000});
           res.cookie('email', email, {maxAge: 9000000});
           request('https://localhost:44338/api/customer/' + email, {json: true}, (err, response, body) => {
+            console.log(body);
             res.cookie('user', body[0].customerID, {maxAge: 9000000});
             res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! You are now logged in.'}); //success you are now logged in
           });
@@ -246,7 +252,7 @@ router.post('/resetpassword', function(req, res, next) {
 });
 
 /* GET orders */
-router.get('/order', function(req, res, next) {
+/*router.get('/order', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   request('https://localhost:44338/api/order', {json : true}, (err, response, body) => {
     if (err) { return console.log(err); }
@@ -256,7 +262,7 @@ router.get('/order', function(req, res, next) {
     }
     res.render('index', { title: 'Mighty Morphin Store', data: JSON.stringify(body), status: status, alert: false, alertContent: ''});
   });
-});
+});*/
 
 /*GET customers */
 router.get('/customer', function(req, res, next) {
