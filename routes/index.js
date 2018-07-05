@@ -134,7 +134,8 @@ router.post('/product', function(req, res, next) {
     .send({ 
       "productID" : productID,
       "cartID" : customerID,
-      "quantity" : quantity
+      "quantity" : quantity,
+      "customerID" : customerID
           })
     .end(function (response) {
       if (response.statusCode !== 204) {
@@ -178,17 +179,36 @@ router.post('/order', function(req, res, next) {
         res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! Something went wrong with your order! Please try again.'}); 
       }
       else {
+        
         //alter orderlines to have the new orderid
         setTimeout( function() {
-          request('https://localhost:44338/api/order/' + req.cookies.user, {json: true}, (err, response, body) => {
+          request('https://localhost:44338/api/cart/' + req.cookies.user, {json: true}, (err, resp, body) => {
             if (err) {console.log(err)}
             else {
-              console.log(body);
+                console.log(body);
+                for (var product in body[0].products) {
+                  console.log(product);
+                  unirest.patch('https://localhost:44338/api/orderline/' + body[0].products[product][4])
+                  .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
+                  .send(
+                    [{"op" : "replace", "path" : "/cartID", "value" : null},
+                    {"op" : "replace", "path" : "/orderID", "value" : response.body.orderID}
+                    ]
+                  )
+                  .end( function (r) {
+                    console.log(r.statusCode);
+                          
+                  })
+                }
+            
+              //post email, tell user to check their email
+              res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed.'});
+ 
             }
-          })}, 1000);
-
-        //post email, tell user to check their email
-        res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed.'}); 
+          })
+        }, 1000);
+        
+        
       }
       
     });
