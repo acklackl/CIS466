@@ -55,10 +55,23 @@ router.get('/cart', function(req, res, next) {
     status = "Currently Logged in.";
     request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
       if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
-      else {res.render('cart', {title: title, data: body[0], alert: false, alertContent: ''});}
+      else {res.render('cart', {title: title, status: status, data: body[0], alert: false, alertContent: ''});}
     });
   }
   else {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to view your cart.'});}
+});
+
+/*GET order page*/ 
+router.get('/order', function(req, res, next) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  if (req.cookies.token !== undefined) { //if user is logged in then send a get request to get the cart for user based on cookie
+    status = "Currently Logged in.";
+    request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
+      if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
+      else {res.render('order', {title: title, status: status, alert: false, total: body[0].subTotal});}
+    });
+  }
+  else {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to make an order.'});}
 });
 
 /* GET Register Page */
@@ -100,11 +113,6 @@ router.get('/logout', function(req, res, next) {
     res.render('index', {title: title, status: 'Not currently logged in', alert: true, alertContent: 'Logout successful.'}); //Logout successful
   }
 });
-
-/*GET order page*/ 
-router.get('/order', function(req, res, next) {
-  res.render('order', {title: title, status: status, alert: false});
-})
 
 /* POST product orderline */
 router.post('/product', function(req, res, next) {
@@ -148,6 +156,45 @@ router.post('/product', function(req, res, next) {
     });
   }
 });
+
+/* POST Order */
+router.post('/order', function(req, res, next) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  if (req.cookies.token === undefined) {
+    res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! You were logged out. Please login and try again.'}); 
+  }
+  else {
+    unirest.post('https://localhost:44338/api/order')
+    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+    .send({
+        "billingAddress" : req.body.billingStreet + " " + req.body.billingFloor + ", " + req.body.billingCity + ",\n" + req.body.billingState + " " + req.body.billingZip,
+        "shippingAddress" : req.body.shippingStreet + " " + req.body.shippingFloor + ", " + req.body.shippingCity + ",\n" + req.body.shippingState + " " + req.body.shippingZip,
+        "creditCard" : req.body.ccNumber,
+        "customerID" : req.cookies.user
+    })
+    .end (function (response) {
+      if (response.statusCode == 500) {
+        //error
+        res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! Something went wrong with your order! Please try again.'}); 
+      }
+      else {
+        //alter orderlines to have the new orderid
+        setTimeout( function() {
+          request('https://localhost:44338/api/order/' + req.cookies.user, {json: true}, (err, response, body) => {
+            if (err) {console.log(err)}
+            else {
+              console.log(body);
+            }
+          })}, 1000);
+
+        //post email, tell user to check their email
+        res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed.'}); 
+      }
+      
+    });
+  }
+});
+
 
 /* POST Login */
 router.post('/login', function(req, res, next) {

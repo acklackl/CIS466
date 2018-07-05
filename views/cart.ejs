@@ -2,6 +2,8 @@
 <html>
 
 <%- include head %>
+<body>
+<%- include nav %>
 <div class="container">
   <table class="table">
     <thead>
@@ -32,9 +34,12 @@
 <div>
   <span>Total: <%= data.subTotal %></span>
   <br>
-  <button href ="order.html" type="button" class="btn btn-primary">Checkout</button>
+  <a href="/order">
+   <button type="button" class="btn btn-primary">Checkout</button>
+  </a>  
 </div>
 <%- include popups %>
 <%- include scripts %>
+</body>
 
 </html>
