@@ -54,6 +54,12 @@ header {
   color: white;
 }
 
+header::after {
+  display: block;
+  content: "";
+  clear: both;
+}
+
 nav {
   width: 100%;
   background-color: #A26769;

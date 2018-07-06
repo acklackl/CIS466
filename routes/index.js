@@ -96,10 +96,20 @@ router.get('/login', function(req, res, next) {
   }
 });
 
+/*GET Forgot Password */
+router.get('/forgotpassword', function(req, res, next) {
+  if (req.cookies.token !== undefined) {
+    res.render('login', {title : 'Mighty Morphin Store', status: '', alert: true, alertContent: 'You are logged in already.'});
+  }
+  else {
+    res.render('forgotPassword', {title: title, status: '', alert: false, alertContent: ''});
+  }
+});
+
 /* GET Reset Password */
 router.get('/resetpassword', function(req, res, next) {
   var url = "?user=" + req.query.user + "&coin=" + req.query.coin;
-  res.render('forgotPassword', {data : url, alert: false, alertContent: ''});
+  res.render('resetPassword', {title: title, status: '', data : url, alert: false, alertContent: ''});
 });
 
 /* GET Logout */
@@ -158,6 +168,7 @@ router.post('/product', function(req, res, next) {
   }
 });
 
+
 /* POST Order */
 router.post('/order', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
@@ -200,7 +211,7 @@ router.post('/order', function(req, res, next) {
                           
                   })
                 }
-            
+  
               //post email, tell user to check their email
               res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed.'});
  
@@ -226,7 +237,7 @@ router.post('/login', function(req, res, next) {
       .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
       .send({ "email" : email, "password" : password })
       .end(function (response) {
-        if (response.statusCode != 200) {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login failed, password or email was incorrect.'}); /*login failed, password or email was incorrect */}
+        if (response.statusCode != 200) {res.render('login', {title: title, status: '', alert: true, alertContent: 'Login failed, password or email was incorrect.'}); /*login failed, password or email was incorrect */}
         else {
           var tokenCookie = req.cookies.token;
           var userCookie = req.cookies.user;
@@ -290,6 +301,26 @@ router.post('/register', function(req, res, next) {
   }
 else {res.render('index', {title: title, status: status, alert: true, alertContent: 'You are currently logged in. To register for a new account, logout.'}); /*currently logged in, to register an account have to logout*/}
 });
+
+/*POST forgot password */
+router.post('/forgotpassword', function(req, res, next) {
+  
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  unirest.post('https://localhost:44338/account/forgotpassword')
+  .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
+  .send({
+    "email" : req.body.email
+  })
+  .end(function (response) {
+    if (response.statusCode !== 200) {
+      res.render('forgotPassword', {title: title, status: '', alert: true, alertContent: 'Failed! You likely entered the wrong email.'});
+    }
+    else {
+      res.render('index', {title: title, status: 'Not currently logged in.', alert: true, alertContent: 'Success! Check your email for the reset password link.'})
+    }
+  })
+
+})
 
 /* POST reset password */
 router.post('/resetpassword', function(req, res, next) {
