@@ -2,12 +2,23 @@ var express = require('express');
 var router = express.Router();
 var request = require('request');
 var unirest = require('unirest');
+var nodemailer = require('nodemailer');
 
 //title
 const title = "Mighty Morphin Store";
 
 //status
 var status = "Not currently logged in.";
+
+
+//email config
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+         user: 'noreply.mightymorphin@gmail.com',
+         pass: 'testAdmin'
+     }
+ });
 
 /*Function to validate if passwords are matching password*/
 function validateInfo(email, password, confirmPassword) {
@@ -195,10 +206,10 @@ router.post('/order', function(req, res, next) {
         setTimeout( function() {
           request('https://localhost:44338/api/cart/' + req.cookies.user, {json: true}, (err, resp, body) => {
             if (err) {console.log(err)}
-            else {
-                console.log(body);
+            else {    
+                var emailBody = "<h1>Your Order:</h1><br/>";
                 for (var product in body[0].products) {
-                  console.log(product);
+                  emailBody += body[0].products[product][0] + "   " + body[0].products[product][1] + "<br/>";
                   unirest.patch('https://localhost:44338/api/orderline/' + body[0].products[product][4])
                   .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
                   .send(
@@ -207,21 +218,29 @@ router.post('/order', function(req, res, next) {
                     ]
                   )
                   .end( function (r) {
-                    console.log(r.statusCode);
+                    //console.log(r.statusCode);
                           
                   })
                 }
   
               //post email, tell user to check their email
-              res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed.'});
- 
+              var mailOptions = {
+                from: 'noreply.mightymorphin@gmail.com', // sender address
+                to: req.cookies.email, // list of receivers
+                subject: 'Order# ' + response.body.orderID, // Subject line
+                html: emailBody // plain text body
+              };
+              
+              transporter.sendMail(mailOptions, function (err, info) {
+                if(err)
+                  {res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed. However, we couldn\'t email your receipt!'});}
+                else
+                  {res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Your order was placed. Check email for your receipt!'});} 
+              });
             }
           })
-        }, 1000);
-        
-        
-      }
-      
+        }, 1000); 
+      }    
     });
   }
 });
@@ -244,7 +263,7 @@ router.post('/login', function(req, res, next) {
           res.cookie('token', response.body, {maxAge: 9000000});
           res.cookie('email', email, {maxAge: 9000000});
           request('https://localhost:44338/api/customer/' + email, {json: true}, (err, response, body) => {
-            console.log(body);
+            //console.log(body);
             res.cookie('user', body[0].customerID, {maxAge: 9000000});
             res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! You are now logged in.'}); //success you are now logged in
           });
