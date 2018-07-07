@@ -179,6 +179,47 @@ router.post('/product', function(req, res, next) {
   }
 });
 
+/*POST Cart (patch orderline delete orderline)*/
+router.post('/cart/delete', function (req, res, next) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  if (req.cookies.token === undefined) {
+    res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! You were logged out. Please login and try again.'}); 
+  }
+  else {
+    unirest.delete('https://localhost:44338/api/orderline/' + req.body.orderLineID)
+    .end(function (response) {
+      if (response.statusCode !== 204) {
+        res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! Something went wrong.'});
+      }
+      else {
+        res.redirect('/cart');
+      }
+    })
+    ;
+  }
+});
+
+/*POST Cart (patch orderline update quantity) */
+router.post('/cart/update', function (req, res, next) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  if (req.cookies.token === undefined) {
+    res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! You were logged out. Please login and try again.'}); 
+  }
+  else {
+    unirest.patch('https://localhost:44338/api/orderline/' + req.body.orderLineID)
+    .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
+    .send([{"op" : "replace", "path" : "/quantity", "value" : req.body.quantity}])
+    .end(function (response) {
+      if (response.statusCode !== 204) {
+        res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! Something went wrong with your order! Please try again.'});
+      }
+      else {
+        res.redirect('/cart');
+      }
+    })
+  }
+})
+
 
 /* POST Order */
 router.post('/order', function(req, res, next) {
