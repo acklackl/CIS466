@@ -249,8 +249,10 @@ router.post('/order', function(req, res, next) {
             if (err) {console.log(err)}
             else {    
                 var emailBody = "<h1>Your Order:</h1><br/>";
+                var subTotal = 0;
                 for (var product in body[0].products) {
-                  emailBody += body[0].products[product][0] + "   " + body[0].products[product][1] + "<br/>";
+                  emailBody += body[0].products[product][0] + "    $" + parseFloat(body[0].products[product][1]) + "<br/>";
+                  subTotal += parseFloat(body[0].products[product][1]);
                   unirest.patch('https://localhost:44338/api/orderline/' + body[0].products[product][4])
                   .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
                   .send(
@@ -263,6 +265,8 @@ router.post('/order', function(req, res, next) {
                           
                   })
                 }
+                console.log(subTotal);
+                emailBody += "<b>Grand Total</b>:    $" + subTotal; 
   
               //post email, tell user to check their email
               var mailOptions = {

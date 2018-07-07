@@ -27,7 +27,7 @@
         <input name="orderLineID" type="hidden" value=<%- data.products[product][4] %>>
         <td><%= data.products[product][0] %></td>
         <td data-toggle="modal" data-target="#quantityForm" data-orderline-id=<%- data.products[product][4] %>><%= data.products[product][2] %></td>
-        <td><%= data.products[product][1] %></td>
+        <td><%= '$' + parseFloat(data.products[product][1]) %></td>
         <td><button class="close" aria-label="close" type="submit" value="0" >X</button></td>
       </tr>
     </form>
@@ -37,7 +37,7 @@
   </table>
 </div>
 <div>
-  <span>Total: <%= data.subTotal %></span>
+  <span>Total: <%= '$' + parseFloat(data.subTotal) %></span>
   <br>
   <a href="/order">
    <button type="button" class="btn btn-primary">Checkout</button>
