@@ -6,12 +6,31 @@
 <body>
   <%- include nav %>
   <main>
-    <div class="container">
-      <h1>Welcome to the Mighty Morphin Shop</h1>
-      <p>Please buy our stuff.</p>
-      <a class="btn btn-primary" href="/product" role="button">Shop</a>
+     <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img class="d-block w-100" src="http://placekitten.com/g/500/100" alt="First slide">
+        </div>
+        <div class="carousel-item">
+          <img class="d-block w-100" src="http://placekitten.com/g/500/100" alt="Second slide">
+        </div>
+        <div class="carousel-item">
+          <img class="d-block w-100" src="http://placekitten.com/g/500/100" alt="Third slide">
+        </div>
+      </div>
+    </div>
+    <div class="jumbotron">
+      <h1 class="display-4">Mighty Morphin</h1>
+      <p class="lead">Change up your style with our clothes. It's Morphin Time</p>
+      <hr class="my-4">
+      <p>Locally sourced, gluten free, vegan, and 100% cool.</p>
+      <p class="lead">
+        <a class="btn btn-primary btn-lg" href="/product" role="button">Shop</a>
+      </p>
+    </div>
   </main>
   </div>
+  <%- include footer %>
   <%- include popups %>
   <%- include scripts %>
   
