@@ -8,7 +8,7 @@ var nodemailer = require('nodemailer');
 const title = "Mighty Morphin Store";
 
 //status
-var status = "Not currently logged in.";
+var status = "Logged out";
 
 
 //email config
@@ -37,7 +37,7 @@ function validateInfo(email, password, confirmPassword) {
 router.get('/', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   var email = req.cookies.email;
-  if (req.cookies.token !== undefined) {status = "Currently Logged in.";}
+  if (req.cookies.token !== undefined) {status = "Logged in";}
   else {
     res.clearCookie('token');
     res.clearCookie('email');
@@ -53,7 +53,7 @@ router.get('/product', function(req, res, next) {
   request('https://localhost:44338/api/product', (err, response, body) => {
 if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown Error'}); /*unknown error*/}
   else {
-    if (req.cookies.token !== undefined) {status = "Currently Logged in."}
+    if (req.cookies.token !== undefined) {status = "Logged in"}
       res.render('product', { title: title, data: JSON.parse(body), status: status, alert: false, alertContent: ''});
     }
   });
@@ -63,7 +63,7 @@ if (err) { return console.log(err); res.render('index', {title: title, status: s
 router.get('/cart', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   if (req.cookies.token !== undefined) { //if user is logged in then send a get request to get the cart for user based on cookie
-    status = "Currently Logged in.";
+    status = "Logged in";
     request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
       if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
       else {res.render('cart', {title: title, status: status, data: body[0], alert: false, alertContent: ''});}
@@ -76,7 +76,7 @@ router.get('/cart', function(req, res, next) {
 router.get('/order', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   if (req.cookies.token !== undefined) { //if user is logged in then send a get request to get the cart for user based on cookie
-    status = "Currently Logged in.";
+    status = "Logged in";
     request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
       if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
       else {res.render('order', {title: title, status: status, alert: false, total: body[0].subTotal});}
@@ -88,19 +88,19 @@ router.get('/order', function(req, res, next) {
 /* GET Register Page */
 router.get('/register', function(req, res, next) {
   if (req.cookies.token !== undefined) {
-    status = "Currently Logged in.";
+    status = "Logged in";
     res.render('index', {title: title, status: status, alert: true, alertContent: 'Already logged in, logout to register.'});//not logged in
     //res.render('register', {title: 'Mighty Morphin Store', status: 'Currently Logged in.', email:'', name: '', phone: '', alert: true, alertContent: 'Already logged in, logout to register.'});
   }
   else {
-    res.render('register', { title: 'Mighty Morphin Store', status: 'Not currently logged in.', email: '', name: '', phone: '', alert: false, alertContent: ''});
+    res.render('register', { title: 'Mighty Morphin Store', status: '', email: '', name: '', phone: '', alert: false, alertContent: ''});
   }
 });
 
 /* GET Login Page */
 router.get('/login', function(req, res, next) {
   if (req.cookies.token !== undefined) {
-    status = "Currently Logged in."
+    status = "Logged in"
     res.render('index', {title: title, status: status, alert: true, alertContent: 'You are already logged in.'}); /*You are already logged in*/}
   else {
     res.render('login', {title : 'Mighty Morphin Store', status: '', alert: false, alertContent: ''});
@@ -125,13 +125,14 @@ router.get('/resetpassword', function(req, res, next) {
 
 /* GET Logout */
 router.get('/logout', function(req, res, next) {
-  if (req.cookies.token === undefined) {res.render('index', {title: title, status: status, alert: true, alertContent: 'You are already logged out.'});/*You are already logged out*/}
+  if (req.cookies.token === undefined) {status = 'Logged out'; res.render('index', {title: title, status: status, alert: true, alertContent: 'You are already logged out.'});/*You are already logged out*/}
   else {
     res.clearCookie('token');
     res.clearCookie('user');
     res.clearCookie('email');
     //pop up modal saying you have logged out
-    res.render('index', {title: title, status: 'Not currently logged in', alert: true, alertContent: 'Logout successful.'}); //Logout successful
+    status ="Logged out"
+    res.render('index', {title: title, status: status, alert: true, alertContent: 'Logout successful.'}); //Logout successful
   }
 });
 
@@ -251,7 +252,7 @@ router.post('/order', function(req, res, next) {
                 var emailBody = "<h1>Your Order:</h1><br/>";
                 var subTotal = 0;
                 for (var product in body[0].products) {
-                  emailBody += body[0].products[product][0] + "    $" + parseFloat(body[0].products[product][1]) + "<br/>";
+                  emailBody += body[0].products[product][0] + " <b>(" + body[0].products[product][2] + ")</b>" + "    $" + parseFloat(body[0].products[product][1])  + "<br/>";
                   subTotal += parseFloat(body[0].products[product][1]);
                   unirest.patch('https://localhost:44338/api/orderline/' + body[0].products[product][4])
                   .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
@@ -303,6 +304,7 @@ router.post('/login', function(req, res, next) {
       .end(function (response) {
         if (response.statusCode != 200) {res.render('login', {title: title, status: '', alert: true, alertContent: 'Login failed, password or email was incorrect.'}); /*login failed, password or email was incorrect */}
         else {
+          status = "Logged in"
           var tokenCookie = req.cookies.token;
           var userCookie = req.cookies.user;
           res.cookie('token', response.body, {maxAge: 9000000});
@@ -380,7 +382,8 @@ router.post('/forgotpassword', function(req, res, next) {
       res.render('forgotPassword', {title: title, status: '', alert: true, alertContent: 'Failed! You likely entered the wrong email.'});
     }
     else {
-      res.render('index', {title: title, status: 'Not currently logged in.', alert: true, alertContent: 'Success! Check your email for the reset password link.'})
+      status ='Logged out'
+      res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Check your email for the reset password link.'})
     }
   })
 
@@ -408,7 +411,7 @@ router.post('/resetpassword', function(req, res, next) {
         res.render('index', {title: title, status: status, alert: true, alertContent: 'Reset password failed, link is no longer valid.'}); //reset password failed, link is no longer failed
       }
       else {
-        res.render('index', {title: title, status: status, alert: true, alertContent: 'Success! Password was reset.'}); //success, password was reset
+        res.render('index', {title: title, status: 'Logged out', alert: true, alertContent: 'Success! Password was reset.'}); //success, password was reset
       }
   });
 });
@@ -431,9 +434,9 @@ router.get('/customer', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   request('https://localhost:44338/api/customer', {json : true}, (err, response, body) => {
     if (err) { return console.log(err); }
-    var status = "Not currently logged in.";
+    var status = "Logged out";
     if (req.cookies.token !== undefined) {
-      status = "Currently Logged in."
+      status = "Logged in"
     }
     res.render('index', { title: 'Mighty Morphin Store', data: JSON.stringify(body), status: status, alert: false, alertContent: ''});
   });
