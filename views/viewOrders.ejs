@@ -1,0 +1,44 @@
+<%- include head %>
+<body>
+
+<%- include nav %>
+
+<% for (var i=0; i < data.length; i++) { %>
+
+<div class="container">
+  <h3 style="margin-top: 50px;">Order# <%- data[i].orderID %></h3>
+  <div class="row">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Image</th>
+          <th scope="col">Description</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Price</th>
+        </tr>
+        <tbody>
+          <% for (var e in data[i].products) { %>
+          <tr>
+            <td>1</td>
+            <td><img class="cartPrdImg img-fluid" src=<%- data[i].products[e][3] %>></td>
+              <td><%= data[i].products[e][0] %></td>
+              <td><%= data[i].products[e][2] %></td>
+              <td><%= "$" + parseFloat(data[i].products[e][1]) %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </thead>
+    </table>
+    <div class="container">
+      <span>Total: <%= "$" + parseFloat(data[i].subTotal) %></span>
+      <hr class="my-4">
+    </div>
+  </div>
+</div>
+
+<% } %>
+
+<%- include footer %>
+
+</body>

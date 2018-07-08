@@ -85,6 +85,25 @@ router.get('/order', function(req, res, next) {
   else {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to make an order.'});}
 });
 
+/*GET order history page*/
+router.get('/order/history', function(req, res, next) {
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+  if (req.cookies.token === undefined) { 
+    status = "Logged out" 
+    res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to view your order history.'});
+  }
+  else {
+    status = "Logged in"
+    request('https://localhost:44338/api/order/' + req.cookies.user, {json : true}, function (err, response, body) {
+      if (err) {res.render('index', {title : title, status: status, alert: true, alertContent: 'Unknown error'})}
+      else {
+        data = response.body;
+        res.render('viewOrders', {title: title, data: data, status: status});
+      }
+    })   
+  }
+})
+
 /* GET Register Page */
 router.get('/register', function(req, res, next) {
   if (req.cookies.token !== undefined) {
