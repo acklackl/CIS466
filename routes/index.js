@@ -64,7 +64,7 @@ router.get('/cart', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   if (req.cookies.token !== undefined) { //if user is logged in then send a get request to get the cart for user based on cookie
     status = "Logged in";
-    request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
+    request({uri: 'https://localhost:44338/api/cart/' + req.cookies.user, json: true, headers: {Authorization : 'Bearer ' + req.cookies.token}}, (err, response, body) => { 
       if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
       else {res.render('cart', {title: title, status: status, data: body[0], alert: false, alertContent: ''});}
     });
@@ -77,8 +77,8 @@ router.get('/order', function(req, res, next) {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
   if (req.cookies.token !== undefined) { //if user is logged in then send a get request to get the cart for user based on cookie
     status = "Logged in";
-    request('https://localhost:44338/api/cart/' + req.cookies.user, {json : true}, (err, response, body) => { 
-      if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
+    request({uri: 'https://localhost:44338/api/cart/' + req.cookies.user, json: true, headers: {Authorization : 'Bearer ' + req.cookies.token}}, (err, response, body) => { 
+      if (response.statusCode == 401) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
       else {res.render('order', {title: title, status: status, alert: false, total: body[0].subTotal});}
     });
   }
@@ -94,7 +94,7 @@ router.get('/order/history', function(req, res, next) {
   }
   else {
     status = "Logged in"
-    request('https://localhost:44338/api/order/' + req.cookies.user, {json : true}, function (err, response, body) {
+    request({ uri: 'https://localhost:44338/api/order/' + req.cookies.user, json : true, headers: {Authorization : 'Bearer ' + req.cookies.token}}, function (err, response, body) {
       if (err) {res.render('index', {title : title, status: status, alert: true, alertContent: 'Unknown error'})}
       else {
         data = response.body;
@@ -171,7 +171,7 @@ router.post('/product', function(req, res, next) {
     var quantity = req.body.quantity;
     var customerID = req.cookies.user;
     unirest.post('https://localhost:44338/api/orderline')
-    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+    .headers({'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
     .send({ 
       "productID" : productID,
       "cartID" : customerID,
@@ -207,6 +207,7 @@ router.post('/cart/delete', function (req, res, next) {
   }
   else {
     unirest.delete('https://localhost:44338/api/orderline/' + req.body.orderLineID)
+    .headers({'Authorization' : 'Bearer ' + req.cookies.token})
     .end(function (response) {
       if (response.statusCode !== 204) {
         res.render('index', {title: title, status: status, alert: true, alertContent: 'Error! Something went wrong.'});
@@ -227,7 +228,7 @@ router.post('/cart/update', function (req, res, next) {
   }
   else {
     unirest.patch('https://localhost:44338/api/orderline/' + req.body.orderLineID)
-    .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
+    .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
     .send([{"op" : "replace", "path" : "/quantity", "value" : req.body.quantity}])
     .end(function (response) {
       if (response.statusCode !== 204) {
@@ -249,7 +250,7 @@ router.post('/order', function(req, res, next) {
   }
   else {
     unirest.post('https://localhost:44338/api/order')
-    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+    .headers({'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
     .send({
         "billingAddress" : req.body.billingStreet + " " + req.body.billingFloor + ", " + req.body.billingCity + ",\n" + req.body.billingState + " " + req.body.billingZip,
         "shippingAddress" : req.body.shippingStreet + " " + req.body.shippingFloor + ", " + req.body.shippingCity + ",\n" + req.body.shippingState + " " + req.body.shippingZip,
@@ -265,7 +266,7 @@ router.post('/order', function(req, res, next) {
         
         //alter orderlines to have the new orderid
         setTimeout( function() {
-          request('https://localhost:44338/api/cart/' + req.cookies.user, {json: true}, (err, resp, body) => {
+          request({uri: 'https://localhost:44338/api/cart/' + req.cookies.user, json: true, headers: {Authorization : 'Bearer ' + req.cookies.token}}, (err, resp, body) => {
             if (err) {console.log(err)}
             else {    
                 var emailBody = "<h1>Your Order:</h1><br/>";
@@ -274,7 +275,7 @@ router.post('/order', function(req, res, next) {
                   emailBody += body[0].products[product][0] + " <b>(" + body[0].products[product][2] + ")</b>" + "    $" + parseFloat(body[0].products[product][1])  + "<br/>";
                   subTotal += parseFloat(body[0].products[product][1]);
                   unirest.patch('https://localhost:44338/api/orderline/' + body[0].products[product][4])
-                  .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json'})
+                  .headers({'Accept' : 'application/json', 'Content-Type' : 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
                   .send(
                     [{"op" : "replace", "path" : "/cartID", "value" : null},
                     {"op" : "replace", "path" : "/orderID", "value" : response.body.orderID}
