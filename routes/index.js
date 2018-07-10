@@ -66,7 +66,11 @@ router.get('/cart', function(req, res, next) {
     status = "Logged in";
     request({uri: 'https://localhost:44338/api/cart/' + req.cookies.user, json: true, headers: {Authorization : 'Bearer ' + req.cookies.token}}, (err, response, body) => { 
       if (err) { return console.log(err); res.render('index', {title: title, status: status, alert: true, alertContent: 'Unknown error'}); /*unknown error*/}
-      else {res.render('cart', {title: title, status: status, data: body[0], alert: false, alertContent: ''});}
+      else {
+        var disabled = '';
+        if (Object.keys(body[0].products).length === 0 && (body[0].products).constructor === Object)  { disabled = 'disabled';}
+        res.render('cart', {title: title, status: status, data: body[0], alert: false, alertContent: '', disabled: disabled});
+      }
     });
   }
   else {res.render('index', {title: title, status: status, alert: true, alertContent: 'Login to view your cart.'});}
@@ -366,10 +370,11 @@ router.post('/register', function(req, res, next) {
                          })
                   .end(function (response) {
                     unirest.post('https://localhost:44338/api/cart')
-                    .headers({'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
+                    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
                     .send({ "customerID" : response.body.customerID
                           })
                     .end(function (response) {
+                      console.log(response);
                   });
                 });
                 res.cookie('token', response.body, {maxAge: 9000000});
