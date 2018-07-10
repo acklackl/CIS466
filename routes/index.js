@@ -366,7 +366,7 @@ router.post('/register', function(req, res, next) {
                          })
                   .end(function (response) {
                     unirest.post('https://localhost:44338/api/cart')
-                    .headers({'Accept': 'application/json', 'Content-Type': 'application/json'})
+                    .headers({'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization' : 'Bearer ' + req.cookies.token})
                     .send({ "customerID" : response.body.customerID
                           })
                     .end(function (response) {
